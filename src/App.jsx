@@ -2,12 +2,36 @@ import React, { useState, useEffect } from "react";
 import { DragDropContext } from "@hello-pangea/dnd";
 import WeekView from "./components/WeekView";
 import mockEvents from "./data/MockEvents";
-import { getCurrentWeekRange } from "./utils/dateUtils";
+import { getWeekRange } from "./utils/dateUtils";
+import RightIcon from "./assets/RightIcon";
+import LeftIcon from "./assets/LeftIcon";
+import CheckIcon from "./assets/CheckIcon";
+import CancelIcon from "./assets/CancelIcon";
+import HomeIcon from "./assets/HomeIcon";
 
 const App = () => {
   const [events, setEvents] = useState(() => {
     return JSON.parse(localStorage.getItem("events")) || mockEvents;
   });
+  const [weekOffset, setWeekOffset] = useState(() => {
+    return parseInt(localStorage.getItem("weekOffset")) || 0;
+  });
+
+  const [sortOrderByDate, setSortOrderByDate] = useState({});
+  const [showCompleted, setShowCompleted] = useState(true);
+  const [showCancelled, setShowCancelled] = useState(true);
+
+  const filterEvents = () => {
+    return events.filter((event) => {
+      if (showCompleted && event.status === "completed") return true;
+      if (showCancelled && event.status === "cancelled") return true;
+      return event.status !== "completed" && event.status !== "cancelled";
+    });
+  };
+
+  useEffect(() => {
+    localStorage.setItem("weekOffset", weekOffset);
+  }, [weekOffset]);
 
   // Load from localStorage
   useEffect(() => {
@@ -18,24 +42,17 @@ const App = () => {
 
       if (Array.isArray(parsed) && parsed.length > 0) {
         setEvents(parsed);
-        console.log("Loaded from localStorage:", parsed);
       } else {
         setEvents(mockEvents);
-        console.log("No events found — using mock data:", mockEvents);
       }
     } else {
       setEvents(mockEvents);
-      console.log("No localStorage key — using mock data:", mockEvents);
     }
   }, []);
 
   // Save to localStorage on update
   useEffect(() => {
     localStorage.setItem("events", JSON.stringify(events));
-    console.log(
-      "Saved to localStorage:",
-      JSON.parse(localStorage.getItem("events"))
-    );
   }, [events]);
 
   const updateEventStatus = (id, status) => {
@@ -62,16 +79,10 @@ const App = () => {
       // Get all events for the source and destination columns
       const sourceDate = source.droppableId;
       const destDate = destination.droppableId;
-      const eventsForSource = prevEvents.filter(
-        (e) => e.date === sourceDate && e.status === "active"
-      );
-      const eventsForDest = prevEvents.filter(
-        (e) => e.date === destDate && e.status === "active"
-      );
+      const eventsForSource = prevEvents.filter((e) => e.date === sourceDate);
+      const eventsForDest = prevEvents.filter((e) => e.date === destDate);
       const otherEvents = prevEvents.filter(
-        (e) =>
-          e.status !== "active" ||
-          (e.date !== sourceDate && e.date !== destDate)
+        (e) => e.date !== sourceDate && e.date !== destDate
       );
 
       // Find the event being moved
@@ -104,20 +115,104 @@ const App = () => {
       }
     });
   };
-  const currentWeekRange = getCurrentWeekRange();
+
+  const sortEventsForDate = (date) => {
+    setEvents((prev) => {
+      const sorted = [...prev].sort((a, b) => {
+        if (a.date !== date || b.date !== date) return 0; // Only sort this day
+
+        if (!a.startTime && b.startTime) return 1;
+        if (a.startTime && !b.startTime) return -1;
+        if (!a.startTime && !b.startTime) return 0;
+
+        const asc = sortOrderByDate[date] ?? true;
+        return asc
+          ? a.startTime.localeCompare(b.startTime)
+          : b.startTime.localeCompare(a.startTime);
+      });
+
+      return sorted;
+    });
+
+    // Toggle sort direction for next time
+    setSortOrderByDate((prev) => ({
+      ...prev,
+      [date]: !(prev[date] ?? true),
+    }));
+  };
+
+  const removeEvent = (id) => {
+    setEvents((prev) => prev.filter((e) => e.id !== id));
+  };
 
   return (
-    <div>
-      <div className="">
-        <p className="text-4xl font-bold text-center my-4">
-          {currentWeekRange}
+    <div className="w-[99vw] min-w-6xl h-[98vh]">
+      <div className=" relative flex justify-center items-center mb-4 mt-4">
+        <button
+          className="!bg-transparent opacity-75 hover:opacity-100 focus:!outline-0 active:opacity-50"
+          onClick={() => {
+            setWeekOffset(0);
+          }}
+        >
+          <HomeIcon size={8} />
+        </button>
+        <button
+          className="px-3 py-1 mr-2 rounded !bg-transparent opacity-75 hover:opacity-100 focus:!outline-0"
+          onClick={() => setWeekOffset((prev) => prev - 1)}
+        >
+          <LeftIcon size={8} />
+        </button>
+        <p className="text-4xl font-bold w-sm text-center">
+          {getWeekRange(weekOffset)}
         </p>
+        <button
+          className="px-3 py-1 ml-2 rounded !bg-transparent opacity-75 hover:opacity-100 focus:!outline-0"
+          onClick={() => setWeekOffset((prev) => prev + 1)}
+        >
+          <RightIcon size={8} />
+        </button>
+
+        <div className="absolute top-0 right-4 !rounded-xl p-1 bg-teal-600/10 dark:bg-slate-500/20">
+          <button
+            className="!bg-transparent focus:!outline-0 mr-2 items-center"
+            onClick={() => {
+              setShowCompleted(!showCompleted);
+            }}
+          >
+            <CheckIcon size={6} />
+            <div className="w-8 h-3 mt-1 rounded-full bg-gray-300 relative">
+              <div
+                className={`w-3 h-3 rounded-full bg-white shadow-md absolute top-0 transition-all duration-300 ${
+                  showCompleted ? "left-5 !bg-green-500" : "left-0 !bg-red-500"
+                }`}
+              />
+            </div>
+          </button>
+          <button
+            className="!bg-transparent focus:!outline-0 items-center"
+            onClick={() => {
+              setShowCancelled(!showCancelled);
+            }}
+          >
+            <CancelIcon size={6} />
+            <div className="w-8 h-3 mt-1 rounded-full bg-gray-300 relative">
+              <div
+                className={`w-3 h-3 rounded-full bg-white shadow-md absolute top-0 transition-all duration-300 ${
+                  showCancelled ? "left-5 !bg-green-500" : "left-0 !bg-red-500"
+                }`}
+              />
+            </div>
+          </button>
+        </div>
       </div>
       <DragDropContext onDragEnd={onDragEnd}>
         <WeekView
-          events={events}
+          events={filterEvents()}
           addEvent={addEvent}
           updateEventStatus={updateEventStatus}
+          removeEvent={removeEvent}
+          sortEventsForDate={sortEventsForDate}
+          weekOffset={weekOffset}
         />
       </DragDropContext>
     </div>

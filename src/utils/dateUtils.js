@@ -1,10 +1,10 @@
-
 //Returns the current week range in the format "1 January - 7 January"
-export function getCurrentWeekRange() {
-  const today = new Date();
-  const day = today.getDay();
-  const monday = new Date(today);
-  monday.setDate(today.getDate() - ((day + 6) % 7));
+export function getWeekRange(offset = 0) {
+  const shiftedDate = new Date();
+  shiftedDate.setDate(shiftedDate.getDate() + offset * 7);
+  const day = shiftedDate.getDay();
+  const monday = new Date(shiftedDate);
+  monday.setDate(shiftedDate.getDate() - ((day + 6) % 7));
 
   const sunday = new Date(monday);
   sunday.setDate(monday.getDate() + 6);
@@ -16,11 +16,12 @@ export function getCurrentWeekRange() {
 }
 
 //Returns an array of objects representing the days of the week starting from Monday as [DayName, Date.Day]
-export function getDaysOfWeek() {
-  const today = new Date();
-  const mondayOffset = (today.getDay() + 6) % 7;
-  const monday = new Date(today);
-  monday.setDate(today.getDate() - mondayOffset);
+export function getDaysOfWeek(offset = 0) {
+  const shiftedDate = new Date();
+  shiftedDate.setDate(new Date().getDate() + offset * 7);
+  const mondayOffset = (shiftedDate.getDay() + 6) % 7;
+  const monday = new Date(shiftedDate);
+  monday.setDate(shiftedDate.getDate() - mondayOffset);
 
   const days = [];
 
