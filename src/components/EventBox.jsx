@@ -45,7 +45,7 @@ const EventBox = ({ event, onCancel, onComplete, onRemove }) => {
         <>
           <button
             className="absolute top-0 right-0 !bg-transparent !p-1
-        text-red-700 hover:text-red-500 hover:!border-transparent transition-colors duration-200"
+        text-red-700 hover:!text-red-500 hover:!border-transparent"
             onClick={onCancel}
           >
             <CancelIcon />

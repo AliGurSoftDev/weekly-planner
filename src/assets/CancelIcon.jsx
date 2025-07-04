@@ -1,9 +1,9 @@
 import React from "react";
 
-const CancelIcon = ({ size = 4 }) => {
+const CancelIcon = ({ size = "w-4 h-4"}) => {
   return (
     <svg
-      className={`w-${size} h-${size}`}
+      className={size}
       aria-hidden="true"
       xmlns="http://www.w3.org/2000/svg"
       fill="none"

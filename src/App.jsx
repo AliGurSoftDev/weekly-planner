@@ -197,7 +197,7 @@ const App = () => {
               setShowCancelled(!showCancelled);
             }}
           >
-            <CancelIcon size={6} />
+            <CancelIcon size={"w-6 h-6"} />
             <div className="w-8 h-3 mt-1 rounded-full bg-gray-300 relative">
               <div
                 className={`w-3 h-3 rounded-full bg-white shadow-md absolute top-0 transition-all duration-300 ${
