@@ -8,6 +8,7 @@ import LeftIcon from "./assets/LeftIcon";
 import CheckIcon from "./assets/CheckIcon";
 import CancelIcon from "./assets/CancelIcon";
 import HomeIcon from "./assets/HomeIcon";
+import LogoIcon from "./assets/LogoIcon";
 
 const App = () => {
   const [events, setEvents] = useState(() => {
@@ -148,6 +149,9 @@ const App = () => {
   return (
     <div className="w-[99vw] min-w-6xl h-[98vh]">
       <div className=" relative flex justify-center items-center mb-4 mt-4">
+        <div className="absolute left-4 top-0 !rounded-xl !bg-[#3D9491] aspect-square p-2">
+          <img src="./logo.png" alt="Weekly Planner" className="h-12 w-12" />
+        </div>
         <button
           className="!bg-transparent opacity-75 hover:opacity-100 focus:!outline-0 active:opacity-50"
           onClick={() => {
