@@ -8,7 +8,6 @@ import LeftIcon from "./assets/LeftIcon";
 import CheckIcon from "./assets/CheckIcon";
 import CancelIcon from "./assets/CancelIcon";
 import HomeIcon from "./assets/HomeIcon";
-import LogoIcon from "./assets/LogoIcon";
 
 const App = () => {
   const [events, setEvents] = useState(() => {
