@@ -2,8 +2,9 @@ import React, { useState } from "react";
 import CheckIcon from "../assets/CheckIcon";
 import CancelIcon from "../assets/CancelIcon";
 import TrashIcon from "../assets/TrashIcon";
+import UndoIcon from "../assets/UndoIcon";
 
-const EventBox = ({ event, onCancel, onComplete, onRemove }) => {
+const EventBox = ({ event, onCancel, onComplete, onRemove, onUndo }) => {
   const [isVisible, setIsVisible] = useState(true);
   const [shouldRender, setShouldRender] = useState(true);
 
@@ -45,7 +46,7 @@ const EventBox = ({ event, onCancel, onComplete, onRemove }) => {
         <>
           <button
             className="absolute top-0 right-0 !bg-transparent !p-1
-        text-red-700 hover:!text-red-500 hover:!border-transparent"
+        text-red-600 hover:!text-red-400 hover:!border-transparent"
             onClick={onCancel}
           >
             <CancelIcon />
@@ -60,13 +61,18 @@ const EventBox = ({ event, onCancel, onComplete, onRemove }) => {
           </button>
         </>
       ) : (
-        <button
-          className="absolute bottom-0 right-0 !bg-transparent !p-1 
-        hover:!text-red-800 hover:!border-transparent"
-          onClick={() => handleAction(() => onRemove(event.id))}
-        >
-          <TrashIcon />
-        </button>
+        <div className="absolute bottom-0 right-0">
+          <button className="!bg-transparent !p-1 hover:!text-gray-600 hover:!border-transparent"
+          onClick={onUndo}>
+            <UndoIcon />
+          </button>
+          <button
+            className=" !bg-transparent !p-1 hover:!text-gray-600 hover:!border-transparent"
+            onClick={() => handleAction(() => onRemove(event.id))}
+          >
+            <TrashIcon />
+          </button>
+        </div>
       )}
     </div>
   );

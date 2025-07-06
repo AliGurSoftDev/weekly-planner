@@ -148,9 +148,11 @@ const App = () => {
   return (
     <div className="w-[99vw] min-w-6xl h-[98vh]">
       <div className=" relative flex justify-center items-center mb-4 mt-4">
+
         <div className="absolute left-4 top-0 !rounded-xl !bg-[#3D9491] aspect-square p-2">
-          <img src="./logo.png" alt="Weekly Planner" className="h-12 w-12" title="Bu proje hayatımın ışığına, Yağmur Kahramanlı'ya adanmıştır." />
+          <img src="./logo.png" alt="Weekly Planner" className="h-8 w-8" title="Bu proje hayatımın ışığına, Yağmur Kahramanlı'ya adanmıştır." />
         </div>
+
         <button
           className="!bg-transparent opacity-75 hover:opacity-100 focus:!outline-0 active:opacity-50"
           onClick={() => {
@@ -165,7 +167,7 @@ const App = () => {
         >
           <LeftIcon size={8} />
         </button>
-        <p className="text-4xl font-bold w-sm text-center">
+        <p className="text-4xl font-bold w-lg text-center">
           {getWeekRange(weekOffset)}
         </p>
         <button

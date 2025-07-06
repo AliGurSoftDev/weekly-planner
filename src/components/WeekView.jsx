@@ -1,6 +1,6 @@
 import React from "react";
 import DayColumn from "./DayColumn";
-import { getDaysOfWeek } from "../utils/dateUtils";
+import { getDaysOfWeek, isToday } from "../utils/dateUtils";
 
 const WeekView = ({
   events,
@@ -20,13 +20,14 @@ const WeekView = ({
         return (
           <DayColumn
             key={day.key}
-            date={dateString}
+            dateString={dateString}
             label={day.label}
             events={eventsForDay}
             addEvent={addEvent}
             updateEventStatus={updateEventStatus}
             removeEvent={removeEvent}
             sortEventsForDate={sortEventsForDate}
+            isToday={isToday(day.date)}
           />
         );
       })}
