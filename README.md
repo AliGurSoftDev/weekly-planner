@@ -1,12 +1,57 @@
-# React + Vite
+# 📅 Weekly Planner
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A modern, drag-and-drop **weekly planner** built with React, Vite, Tailwind CSS, and @hello-pangea/dnd.  
+Plan your week, add and reorder events, and keep your data safe in your browser’s localStorage.
 
-Currently, two official plugins are available:
+🌐 **Live Demo**: [weeklyplannerapp.vercel.app](https://weeklyplannerapp.vercel.app/)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+---
 
-## Expanding the ESLint configuration
+## ✨ Features
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+- 🖱 **Drag & Drop** – Move events between days or reorder within a day with smooth animations.
+- ➕ **Add/Edit/Remove Events** – Manage your weekly schedule with ease.
+- 🔃 **Sort Events** – Sort events in a day by time with one click (toggle ascending/descending).
+- 📦 **Local Storage** – Automatically saves your events in your browser.
+- 🌙 **Light/Dark Mode** – Responsive and theme-aware design.
+- 📆 **Week Navigation** – Jump to past or future weeks with `<` and `>` buttons.
+- 👀 **Hide/Show Completed** – Filter out completed/cancelled events with a single click.
+
+---
+
+## 🛠 Tech Stack
+
+- ⚛️ [React](https://reactjs.org/) – UI library (hooks-based functional components)
+- ⚡ [Vite](https://vitejs.dev/) – Super fast dev server and build tool
+- 🎨 [Tailwind CSS](https://tailwindcss.com/) – Utility-first styling
+- 📦 [@hello-pangea/dnd](https://github.com/hello-pangea/dnd) – Drag & drop with accessibility and performance in mind
+
+---
+
+## 🚀 Getting Started
+
+Clone the repository:
+
+```bash
+git clone https://github.com/your-username/weekly-planner.git
+cd weekly-planner
+```
+
+Install dependencies:
+
+```bash
+npm install
+```
+
+Start the development server:
+
+```bash
+npm run dev
+```
+
+Open your browser and visit: http://localhost:5173
+
+
+MIT © Ali Gür
+
+
