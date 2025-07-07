@@ -3,6 +3,10 @@ import { DragDropContext } from "@hello-pangea/dnd";
 import WeekView from "./components/WeekView";
 import mockEvents from "./data/MockEvents";
 import { getWeekRange } from "./utils/dateUtils";
+import {
+  ActiveFormProvider,
+  useActiveForm,
+} from "./contexts/ActiveFormContext";
 import RightIcon from "./assets/RightIcon";
 import LeftIcon from "./assets/LeftIcon";
 import CheckIcon from "./assets/CheckIcon";
@@ -10,16 +14,34 @@ import CancelIcon from "./assets/CancelIcon";
 import HomeIcon from "./assets/HomeIcon";
 
 const App = () => {
+  if (
+    localStorage.getItem("theme") === "dark" ||
+    (!localStorage.getItem("theme") &&
+      window.matchMedia("(prefers-color-scheme: dark)").matches)
+  ) {
+    document.documentElement.classList.add("dark");
+  } else {
+    document.documentElement.classList.remove("dark");
+  }
   const [events, setEvents] = useState(() => {
     return JSON.parse(localStorage.getItem("events")) || mockEvents;
   });
   const [weekOffset, setWeekOffset] = useState(() => {
     return parseInt(localStorage.getItem("weekOffset")) || 0;
   });
+  const [theme, setTheme] = useState(() => {
+    const stored = localStorage.getItem("theme");
+    if (stored) return stored;
+
+    return window.matchMedia("(prefers-color-scheme: dark)").matches
+      ? "dark"
+      : "light";
+  });
 
   const [sortOrderByDate, setSortOrderByDate] = useState({});
   const [showCompleted, setShowCompleted] = useState(true);
   const [showCancelled, setShowCancelled] = useState(true);
+  const { setActiveFormDate } = useActiveForm();
 
   const filterEvents = () => {
     return events.filter((event) => {
@@ -30,7 +52,17 @@ const App = () => {
   };
 
   useEffect(() => {
+    if (theme === "dark") {
+      document.documentElement.classList.add("dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+    }
+    localStorage.setItem("theme", theme);
+  }, [theme]);
+
+  useEffect(() => {
     localStorage.setItem("weekOffset", weekOffset);
+    setActiveFormDate(null);
   }, [weekOffset]);
 
   // Load from localStorage
@@ -145,82 +177,120 @@ const App = () => {
     setEvents((prev) => prev.filter((e) => e.id !== id));
   };
 
+  const setDisplayedWeek = (offset) => {
+    if (offset === 0) {
+      if (weekOffset === 0) return;
+      setWeekOffset(0);
+    } else {
+      setWeekOffset((prev) => prev + offset);
+    }
+    return;
+  };
+
   return (
-    <div className="w-[99vw] min-w-6xl h-[98vh]">
-      <div className=" relative flex justify-center items-center mb-4 mt-4">
+    <ActiveFormProvider>
+      <div className="w-[99vw] min-w-6xl h-[98vh]">
+        <div className=" relative flex justify-center items-center mb-4 mt-4">
+          <div className="absolute left-4 top-0 !rounded-xl !bg-[#3D9491] aspect-square p-2">
+            <img
+              src="./logo.png"
+              alt="Weekly Planner"
+              className="h-8 w-8"
+              title="Bu proje hayatımın ışığına, Yağmur Kahramanlı'ya adanmıştır."
+            />
+          </div>
 
-        <div className="absolute left-4 top-0 !rounded-xl !bg-[#3D9491] aspect-square p-2">
-          <img src="./logo.png" alt="Weekly Planner" className="h-8 w-8" title="Bu proje hayatımın ışığına, Yağmur Kahramanlı'ya adanmıştır." />
-        </div>
-
-        <button
-          className="!bg-transparent opacity-75 hover:opacity-100 focus:!outline-0 active:opacity-50"
-          onClick={() => {
-            setWeekOffset(0);
-          }}
-        >
-          <HomeIcon size={8} />
-        </button>
-        <button
-          className="px-3 py-1 mr-2 rounded !bg-transparent opacity-75 hover:opacity-100 focus:!outline-0"
-          onClick={() => setWeekOffset((prev) => prev - 1)}
-        >
-          <LeftIcon size={8} />
-        </button>
-        <p className="text-4xl font-bold w-lg text-center">
-          {getWeekRange(weekOffset)}
-        </p>
-        <button
-          className="px-3 py-1 ml-2 rounded !bg-transparent opacity-75 hover:opacity-100 focus:!outline-0"
-          onClick={() => setWeekOffset((prev) => prev + 1)}
-        >
-          <RightIcon size={8} />
-        </button>
-
-        <div className="absolute top-0 right-4 !rounded-xl p-1 bg-teal-600/10 dark:bg-slate-500/20">
           <button
-            className="!bg-transparent focus:!outline-0 mr-2 items-center"
+            className="!bg-transparent opacity-75 hover:opacity-100 focus:!outline-0 active:opacity-50"
             onClick={() => {
-              setShowCompleted(!showCompleted);
+              setDisplayedWeek(0);
             }}
           >
-            <CheckIcon size={6} />
-            <div className="w-8 h-3 mt-1 rounded-full bg-gray-300 relative">
-              <div
-                className={`w-3 h-3 rounded-full bg-white shadow-md absolute top-0 transition-all duration-300 ${
-                  showCompleted ? "left-5 !bg-green-500" : "left-0 !bg-red-500"
-                }`}
-              />
-            </div>
+            <HomeIcon size={8} />
           </button>
           <button
-            className="!bg-transparent focus:!outline-0 items-center"
-            onClick={() => {
-              setShowCancelled(!showCancelled);
-            }}
+            className="px-3 py-1 mr-2 rounded !bg-transparent opacity-75 hover:opacity-100 focus:!outline-0"
+            onClick={() => setDisplayedWeek(-1)}
           >
-            <CancelIcon size={"w-6 h-6"} />
-            <div className="w-8 h-3 mt-1 rounded-full bg-gray-300 relative">
-              <div
-                className={`w-3 h-3 rounded-full bg-white shadow-md absolute top-0 transition-all duration-300 ${
-                  showCancelled ? "left-5 !bg-green-500" : "left-0 !bg-red-500"
-                }`}
-              />
-            </div>
+            <LeftIcon size={8} />
           </button>
+          <p className="text-4xl font-bold w-lg text-center">
+            {getWeekRange(weekOffset)}
+          </p>
+          <button
+            className="px-3 py-1 ml-2 rounded !bg-transparent opacity-75 hover:opacity-100 focus:!outline-0"
+            onClick={() => setDisplayedWeek(1)}
+          >
+            <RightIcon size={8} />
+          </button>
+          <div className="absolute top-0 right-4 grid grid-cols-2 justify-items-end items-center gap-4">
+            <div className="!rounded-full !border-4 dark:border-slate-400/80 border-sky-600/70 ">
+              <button
+                onClick={() => setTheme(theme === "light" ? "dark" : "light")}
+                className={`relative w-16 h-8 !rounded-full transition-colors duration-300 focus:!outline-0 ${
+                  theme === "dark" ? "!bg-sky-900" : "!bg-sky-300"
+                }`}
+              >
+                <span
+                  className={`absolute left-[1px] top-[1px] w-7 h-7 !rounded-full bg-neutral-100/40 shadow-md transform transition-transform duration-300
+                   flex justify-center items-center text-center text-xl ${
+                     theme === "dark" ? "translate-x-8" : ""
+                   }`}
+                >
+                  {theme === "dark" ? "🌙" : "☀️"}
+                </span>
+              </button>
+            </div>
+            <div className=" !rounded-xl p-1 bg-teal-600/10 dark:bg-slate-500/20">
+              <button
+                className="!bg-transparent focus:!outline-0 mr-2 items-center"
+                onClick={() => {
+                  setShowCompleted(!showCompleted);
+                }}
+              >
+                <CheckIcon size={6} />
+                <div className="w-8 h-3 mt-1 rounded-full bg-gray-300 relative">
+                  <div
+                    className={`w-3 h-3 rounded-full bg-white shadow-md absolute top-0 transition-all duration-300 ${
+                      showCompleted
+                        ? "left-5 !bg-green-500"
+                        : "left-0 !bg-red-500"
+                    }`}
+                  />
+                </div>
+              </button>
+              <button
+                className="!bg-transparent focus:!outline-0 items-center"
+                onClick={() => {
+                  setShowCancelled(!showCancelled);
+                }}
+              >
+                <CancelIcon size={"w-6 h-6"} />
+                <div className="w-8 h-3 mt-1 rounded-full bg-gray-300 relative">
+                  <div
+                    className={`w-3 h-3 rounded-full bg-white shadow-md absolute top-0 transition-all duration-300 ${
+                      showCancelled
+                        ? "left-5 !bg-green-500"
+                        : "left-0 !bg-red-500"
+                    }`}
+                  />
+                </div>
+              </button>
+            </div>
+          </div>
         </div>
+        <DragDropContext onDragEnd={onDragEnd}>
+          <WeekView
+            events={filterEvents()}
+            addEvent={addEvent}
+            updateEventStatus={updateEventStatus}
+            removeEvent={removeEvent}
+            sortEventsForDate={sortEventsForDate}
+            weekOffset={weekOffset}
+          />
+        </DragDropContext>
       </div>
-      <DragDropContext onDragEnd={onDragEnd}>
-        <WeekView
-          events={filterEvents()}
-          addEvent={addEvent}
-          updateEventStatus={updateEventStatus}
-          removeEvent={removeEvent}
-          sortEventsForDate={sortEventsForDate}
-          weekOffset={weekOffset}
-        />
-      </DragDropContext>
-    </div>
+    </ActiveFormProvider>
   );
 };
 

@@ -42,5 +42,10 @@ export function getDaysOfWeek(offset = 0) {
 
 //Gets a date and returns true or false depending on wheter it's today or not.
 export function isToday(date) {
-  return new Date().getDay() == date.getDay();
+  const today = new Date();
+  return (
+    today.getFullYear() === date.getFullYear() &&
+    today.getMonth() === date.getMonth() &&
+    today.getDate() === date.getDate()
+  );
 }

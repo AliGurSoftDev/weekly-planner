@@ -1,9 +1,10 @@
-import React, { useState } from "react";
+import React from "react";
 import { Droppable, Draggable } from "@hello-pangea/dnd";
 import EventBox from "./EventBox";
 import AddEventForm from "./AddEventForm";
 import AddIcon from "../assets/AddIcon";
 import SortIcon from "../assets/SortIcon";
+import { useActiveForm } from "../contexts/ActiveFormContext";
 
 const DayColumn = ({
   dateString,
@@ -15,7 +16,9 @@ const DayColumn = ({
   sortEventsForDate,
   isToday,
 }) => {
-  const [showForm, setShowForm] = useState(false);
+  const {activeFormDate, setActiveFormDate} = useActiveForm();
+  const isActive = activeFormDate === dateString;
+
   return (
     <div
       className={`group relative ${
@@ -63,18 +66,18 @@ const DayColumn = ({
             ))}
             {provided.placeholder}
 
-            {showForm ? (
+            {isActive ? (
               <AddEventForm
                 date={dateString}
                 onSave={(newEvent) => {
                   addEvent(newEvent);
-                  setShowForm(false);
+                  setActiveFormDate(null);
                 }}
-                onCancel={() => setShowForm(false)}
+                onCancel={() => setActiveFormDate(null)}
               />
             ) : (
               <button
-                onClick={() => setShowForm(true)}
+                onClick={() => setActiveFormDate(dateString)}
                 className="w-full text-center py-1 rounded mt-2 flex justify-center items-center
                 opacity-20 group-hover:opacity-100 hover:opacity-100"
               >

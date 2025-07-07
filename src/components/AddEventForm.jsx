@@ -1,16 +1,39 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 
 const AddEventForm = ({ date, onSave, onCancel }) => {
   const [title, setTitle] = useState("");
   const [text, setText] = useState("");
   const [startTime, setStartTime] = useState("");
   const [endTime, setEndTime] = useState("");
+  const titleInputRef = useRef(null);
+
+  useEffect(() => {
+    if (titleInputRef.current) {
+      titleInputRef.current.focus();
+    }
+
+    const handleKeyDown = (e) => {
+      if (e.key === "Escape") {
+        onCancel();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, []);
+
+  useEffect(() => {
+    titleInputRef.current.className = "p-1 border rounded font-medium";
+  }, [title]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
 
     if (!title) {
-      alert("Please fill in title.");
+      titleInputRef.current.className =
+        "p-1 border rounded font-medium !text-red-500";
+      titleInputRef.current.focus();
       return;
     }
 
@@ -39,6 +62,7 @@ const AddEventForm = ({ date, onSave, onCancel }) => {
           type="text"
           placeholder="Event title"
           value={title}
+          ref={titleInputRef}
           onChange={(e) => setTitle(e.target.value)}
           className="p-1 border rounded font-medium"
         />
