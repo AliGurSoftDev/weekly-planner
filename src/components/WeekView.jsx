@@ -5,6 +5,7 @@ import { getDaysOfWeek, isToday } from "../utils/dateUtils";
 const WeekView = ({
   events,
   addEvent,
+  editEvent,
   updateEventStatus,
   removeEvent,
   sortEventsForDate,
@@ -28,6 +29,7 @@ const WeekView = ({
             label={day.label}
             events={eventsForDay}
             addEvent={addEvent}
+            editEvent={editEvent}
             updateEventStatus={updateEventStatus}
             removeEvent={removeEvent}
             sortEventsForDate={sortEventsForDate}

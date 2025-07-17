@@ -95,6 +95,12 @@ const App = () => {
     setEvents((prev) => [...prev, event]);
   };
 
+  const editEvent = (id, updatedEvent) => {
+    setEvents((prev) =>
+      prev.map((e) => (e.id === id ? { ...e, ...updatedEvent } : e))
+    );
+  };
+
   const onDragEnd = (result) => {
     const { source, destination } = result;
     if (!destination) return;
@@ -283,6 +289,7 @@ const App = () => {
           <WeekView
             events={filterEvents()}
             addEvent={addEvent}
+            editEvent={editEvent}
             updateEventStatus={updateEventStatus}
             removeEvent={removeEvent}
             sortEventsForDate={sortEventsForDate}

@@ -1,10 +1,10 @@
 import React, { useState, useRef, useEffect } from "react";
 
-const AddEventForm = ({ date, onSave, onCancel }) => {
-  const [title, setTitle] = useState("");
-  const [text, setText] = useState("");
-  const [startTime, setStartTime] = useState("");
-  const [endTime, setEndTime] = useState("");
+const AddEventForm = ({ date, onSave, onCancel, editingEvent }) => {
+  const [title, setTitle] = useState(editingEvent ? editingEvent.title : "");
+  const [text, setText] = useState(editingEvent ? editingEvent.text : "");
+  const [startTime, setStartTime] = useState(editingEvent ? editingEvent.startTime : "");
+  const [endTime, setEndTime] = useState(editingEvent ? editingEvent.endTime : "");
   const titleInputRef = useRef(null);
 
   useEffect(() => {
@@ -38,7 +38,7 @@ const AddEventForm = ({ date, onSave, onCancel }) => {
     }
 
     const newEvent = {
-      id: Date.now().toString(), // temporary unique ID
+      id: editingEvent ? editingEvent.id : Date.now().toString(),
       title,
       text,
       date,
@@ -54,7 +54,7 @@ const AddEventForm = ({ date, onSave, onCancel }) => {
     setStartTime("");
     setEndTime("");
   };
-
+  
   return (
     <div className="p-2 mt-2 rounded-lg border border-gray-300  light:bg-amber-50 shadow-sm">
       <form onSubmit={handleSubmit} className="flex flex-col gap-2">
@@ -98,7 +98,7 @@ const AddEventForm = ({ date, onSave, onCancel }) => {
             type="submit"
             className="text-sm px-2 py-1 rounded !bg-emerald-500 text-white hover:!bg-emerald-600  w-1/2"
           >
-            Add
+            {editingEvent ? "Save" : "Add"}
           </button>
         </div>
       </form>

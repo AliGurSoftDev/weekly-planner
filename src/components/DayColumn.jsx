@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Droppable, Draggable } from "@hello-pangea/dnd";
 import EventBox from "./EventBox";
 import AddEventForm from "./AddEventForm";
@@ -11,13 +11,22 @@ const DayColumn = ({
   label,
   events,
   addEvent,
+  editEvent,
   removeEvent,
   updateEventStatus,
   sortEventsForDate,
   isToday,
 }) => {
-  const {activeFormDate, setActiveFormDate} = useActiveForm();
+  const { activeFormDate, setActiveFormDate } = useActiveForm();
   const isActive = activeFormDate === dateString;
+  const [editingEvent, setEditingEvent] = useState(null);
+
+  useEffect(() => {
+    if (!isActive) {
+      setEditingEvent(null); // Reset editing state when active form is opened
+    }
+    
+  }, [isActive]);
 
   return (
     <div
@@ -59,6 +68,14 @@ const DayColumn = ({
                       }
                       onRemove={removeEvent}
                       onUndo={() => updateEventStatus(event.id, "active")}
+                      onEdit={() => {
+                        if (!editingEvent && !isActive) {
+                          setEditingEvent(
+                            events.find((e) => e.id === event.id)
+                          );
+                          setActiveFormDate(dateString);
+                        }
+                      }}
                     />
                   </div>
                 )}
@@ -69,15 +86,27 @@ const DayColumn = ({
             {isActive ? (
               <AddEventForm
                 date={dateString}
+                editingEvent={editingEvent}
                 onSave={(newEvent) => {
-                  addEvent(newEvent);
+                  if (editingEvent) {
+                    editEvent(newEvent.id, newEvent);
+                    setEditingEvent(null);
+                  } else {
+                    addEvent(newEvent);
+                  }
                   setActiveFormDate(null);
                 }}
-                onCancel={() => setActiveFormDate(null)}
+                onCancel={() => {
+                  setActiveFormDate(null);
+                  setEditingEvent(null);
+                }}
               />
             ) : (
               <button
-                onClick={() => setActiveFormDate(dateString)}
+                onClick={() => {
+                  setEditingEvent(null);
+                  setActiveFormDate(dateString);
+                }}
                 className="w-full text-center py-1 rounded mt-2 flex justify-center items-center
                 opacity-20 group-hover:opacity-100 hover:opacity-100"
               >
@@ -87,7 +116,9 @@ const DayColumn = ({
           </div>
         )}
       </Droppable>
-      {isToday && <p className="opacity-50 text-right text-sm font-sans">Today</p>}
+      {isToday && (
+        <p className="opacity-50 text-right text-sm font-sans">Today</p>
+      )}
     </div>
   );
 };

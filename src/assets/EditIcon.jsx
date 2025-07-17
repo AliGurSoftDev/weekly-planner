@@ -3,7 +3,7 @@ import React from "react";
 const EditIcon = () => {
   return (
     <svg
-      className="w-6 h-6 text-gray-800 dark:text-white"
+      className="w-5 h-5"
       aria-hidden="true"
       xmlns="http://www.w3.org/2000/svg"
       width="24"

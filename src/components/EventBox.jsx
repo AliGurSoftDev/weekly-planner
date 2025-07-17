@@ -3,8 +3,9 @@ import CheckIcon from "../assets/CheckIcon";
 import CancelIcon from "../assets/CancelIcon";
 import TrashIcon from "../assets/TrashIcon";
 import UndoIcon from "../assets/UndoIcon";
+import EditIcon from "../assets/EditIcon";
 
-const EventBox = ({ event, onCancel, onComplete, onRemove, onUndo }) => {
+const EventBox = ({ event, onCancel, onComplete, onRemove, onUndo, onEdit }) => {
   const [isVisible, setIsVisible] = useState(true);
   const [shouldRender, setShouldRender] = useState(true);
 
@@ -38,10 +39,13 @@ const EventBox = ({ event, onCancel, onComplete, onRemove, onUndo }) => {
         {event.status === "cancelled" && "(Cancelled)"}
       </p>
       <p className="text-sm text-gray-700 dark:text-stone-200">{event.text}</p>
-      <p className="text-xs text-gray-600 dark:text-stone-300">
-        {event.startTime} - {event.endTime}
-      </p>
-
+      {event.startTime || event.endTime ? (
+        <p className="text-xs text-gray-600 dark:text-stone-300">
+          {event.startTime} - {event.endTime}
+        </p>
+      ) : (
+        <br />
+      )}
       {event.status === "active" ? (
         <>
           <button
@@ -51,19 +55,29 @@ const EventBox = ({ event, onCancel, onComplete, onRemove, onUndo }) => {
           >
             <CancelIcon />
           </button>
-
-          <button
-            className="absolute bottom-0 right-0 !bg-transparent !p-1 
+          <div className="absolute bottom-0 right-0">
+            <button
+              className="!bg-transparent !p-0 
+        text-yellow-600 hover:!text-yellow-400 hover:!border-transparent"
+              onClick={onEdit}
+            >
+              <EditIcon />
+            </button>
+            <button
+              className="!bg-transparent !p-1
         text-green-600 hover:!text-green-400 hover:!border-transparent"
-            onClick={onComplete}
-          >
-            <CheckIcon />
-          </button>
+              onClick={onComplete}
+            >
+              <CheckIcon />
+            </button>
+          </div>
         </>
       ) : (
         <div className="absolute bottom-0 right-0">
-          <button className="!bg-transparent !p-1 hover:!text-gray-600 hover:!border-transparent"
-          onClick={onUndo}>
+          <button
+            className="!bg-transparent !p-1 hover:!text-gray-600 hover:!border-transparent"
+            onClick={onUndo}
+          >
             <UndoIcon />
           </button>
           <button
