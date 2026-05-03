@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { DragDropContext } from "@hello-pangea/dnd";
 import WeekView from "./components/WeekView";
 import mockEvents from "./data/MockEvents";
-import { getWeekRange } from "./utils/dateUtils";
+import { getWeekRange, getDaysOfWeek } from "./utils/dateUtils";
 import {
   ActiveFormProvider,
   useActiveForm,
@@ -42,6 +42,30 @@ const App = () => {
   const [showCompleted, setShowCompleted] = useState(true);
   const [showCancelled, setShowCancelled] = useState(true);
   const { setActiveFormDate } = useActiveForm();
+
+  const weekDays = getDaysOfWeek(weekOffset);
+  const weekDateStrings = weekDays.map((day) => {
+    const y = day.date.getFullYear();
+    const m = String(day.date.getMonth() + 1).padStart(2, "0");
+    const d = String(day.date.getDate()).padStart(2, "0");
+    return `${y}-${m}-${d}`;
+  });
+
+  const weekEvents = events.filter((event) =>
+    weekDateStrings.includes(event.date)
+  );
+  const completedCount = weekEvents.filter(
+    (event) => event.status === "completed"
+  ).length;
+  const cancelledCount = weekEvents.filter(
+    (event) => event.status === "cancelled"
+  ).length;
+  const totalCount = weekEvents.length;
+  const progressCount = completedCount;
+  const completionPercentage =
+    totalCount > 0 ? Math.round((progressCount / totalCount) * 100) : 0;
+  const completedWidth = totalCount ? (completedCount / totalCount) * 100 : 0;
+  const cancelledWidth = totalCount ? (cancelledCount / totalCount) * 100 : 0;
 
   const filterEvents = () => {
     return events.filter((event) => {
@@ -206,6 +230,29 @@ const App = () => {
             />
           </div>
 
+          <div className="absolute left-30 justify-center min-w-[400px] max-w-[400px]">
+            <div className="relative h-9 rounded-md bg-slate-300/80 overflow-hidden">
+              <div
+                className="absolute inset-y-0 left-0 bg-emerald-500 transition-all duration-600"
+                style={{ width: `${completedWidth}%` }}
+              />
+              <div
+                className="absolute inset-y-0 bg-red-500 transition-all duration-600"
+                style={{
+                  width: `${cancelledWidth}%`,
+                  left: `${completedWidth}%`,
+                }}
+              />
+              <div className="absolute inset-0 flex items-center justify-center text-sm font-semibold text-white transition-all duration-600">
+                {completionPercentage}%
+              </div>
+            </div>
+            
+            <div className="absolute right-0 text-xs font-semibold text-slate-700 dark:text-slate-200 mt-1">
+              {completedCount}/{totalCount} completed
+            </div>
+          </div>
+
           <button
             className="!bg-transparent opacity-75 hover:opacity-100 focus:!outline-0 active:opacity-50"
             onClick={() => {
@@ -230,7 +277,7 @@ const App = () => {
             <RightIcon size={8} />
           </button>
           <div className="absolute top-0 right-4 grid grid-cols-2 justify-items-end items-center gap-4">
-            <div className="!rounded-full !border-4 dark:border-slate-400/80 border-sky-600/70 ">
+            <div className="!rounded-full !border-2 dark:border-slate-400/80 border-sky-600/70 ">
               <button
                 onClick={() => setTheme(theme === "light" ? "dark" : "light")}
                 className={`relative w-16 h-8 !rounded-full transition-colors duration-300 focus:!outline-0 ${
