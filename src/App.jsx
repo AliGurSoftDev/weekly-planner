@@ -131,7 +131,6 @@ const App = () => {
     const { source, destination } = result;
     if (!destination) return;
 
-    // If dropped in the same column and position, do nothing
     if (
       source.droppableId === destination.droppableId &&
       source.index === destination.index
@@ -140,7 +139,6 @@ const App = () => {
     }
 
     setEvents((prevEvents) => {
-      // Get all events for the source and destination columns
       const sourceDate = source.droppableId;
       const destDate = destination.droppableId;
       const eventsForSource = prevEvents.filter((e) => e.date === sourceDate);
@@ -149,31 +147,23 @@ const App = () => {
         (e) => e.date !== sourceDate && e.date !== destDate,
       );
 
-      // Find the event being moved
       const movingEvent = eventsForSource[source.index];
       if (!movingEvent) return prevEvents;
 
-      // Remove from source
       let newSource = [...eventsForSource];
       newSource.splice(source.index, 1);
 
-      // If moving within the same column
       if (sourceDate === destDate) {
         newSource.splice(destination.index, 0, movingEvent);
-        // Rebuild the events array for this date
         const reordered = [
           ...otherEvents,
           ...newSource.map((e) => (e.id === movingEvent.id ? { ...e } : e)),
         ];
-        // Keep the order for other columns
         return reordered;
       } else {
-        // Moving to a different column
         let newDest = [...eventsForDest];
-        // Update the date of the moving event
         const movedEvent = { ...movingEvent, date: destDate };
         newDest.splice(destination.index, 0, movedEvent);
-        // Rebuild the events array for both columns
         const reordered = [...otherEvents, ...newSource, ...newDest];
         return reordered;
       }
@@ -183,7 +173,7 @@ const App = () => {
   const sortEventsForDate = (date) => {
     setEvents((prev) => {
       const sorted = [...prev].sort((a, b) => {
-        if (a.date !== date || b.date !== date) return 0; // Only sort this day
+        if (a.date !== date || b.date !== date) return 0;
 
         if (!a.startTime && b.startTime) return 1;
         if (a.startTime && !b.startTime) return -1;
@@ -198,7 +188,6 @@ const App = () => {
       return sorted;
     });
 
-    // Toggle sort direction for next time
     setSortOrderByDate((prev) => ({
       ...prev,
       [date]: !(prev[date] ?? true),
@@ -250,88 +239,90 @@ const App = () => {
 
   return (
     <ActiveFormProvider>
-      <div className="w-[99vw] min-w-6xl h-[98vh]">
-        <div className=" relative flex justify-center items-center mb-4 mt-4">
-          <div className="absolute left-4 top-0 !rounded-xl !bg-[#3D9491] aspect-square p-2">
-            <img
-              src="./logo.png"
-              alt="Weekly Planner"
-              className="h-8 w-8"
-              title="Bu proje hayatımın ışığına, Yağmur Kahramanlı'ya adanmıştır."
-            />
-          </div>
-
-          <div className="absolute left-30 justify-center min-w-[400px] max-w-[400px]">
-            <div className="relative h-9 rounded-md bg-slate-300/80 overflow-hidden">
-              <div
-                className="absolute inset-y-0 left-0 bg-emerald-500 transition-all duration-600"
-                style={{ width: `${completedWidth}%` }}
+      <div className="w-[99vw] min-w-6xl ml-2 h-[99vh]">
+        {/* ── HEADER ── */}
+        <div className="flex items-start mb-2 px-3 mt-2 gap-4">
+          {/* LEFT 30%: Logo + Progress Bar */}
+          <div className="basis-[30%] flex items-center gap-6 min-w-0">
+            <div className="!rounded-xl !bg-[#3D9491] aspect-square p-2 flex-shrink-0 ml-2">
+              <img
+                src="./logo.png"
+                alt="Weekly Planner"
+                className="h-8 w-8"
+                title="Bu proje hayatımın ışığına, Yağmur Kahramanlı'ya adanmıştır."
               />
-              <div
-                className="absolute inset-y-0 bg-red-500 transition-all duration-600"
-                style={{
-                  width: `${cancelledWidth}%`,
-                  left: `${completedWidth}%`,
-                }}
-              />
-              <div className="absolute inset-0 flex items-center justify-center text-sm font-semibold text-white transition-all duration-600">
-                {completionPercentage}%
+            </div>
+            <div className="flex-1 min-w-0 pt-4">
+              <div className="relative h-9 rounded-md bg-slate-300/80 overflow-hidden">
+                <div
+                  className="absolute inset-y-0 left-0 bg-emerald-500 transition-all duration-600"
+                  style={{ width: `${completedWidth}%` }}
+                />
+                <div
+                  className="absolute inset-y-0 bg-red-500 transition-all duration-600"
+                  style={{
+                    width: `${cancelledWidth}%`,
+                    left: `${completedWidth}%`,
+                  }}
+                />
+                <div className="absolute inset-0 flex items-center justify-center text-sm font-semibold text-white transition-all duration-600">
+                  {completionPercentage}%
+                </div>
+              </div>
+              <div className="text-right text-xs font-semibold text-slate-700 dark:text-slate-200 mt-1">
+                {completedCount}/{totalCount} completed
               </div>
             </div>
-
-            <div className="absolute right-0 text-xs font-semibold text-slate-700 dark:text-slate-200 mt-1">
-              {completedCount}/{totalCount} completed
-            </div>
           </div>
 
-          <button
-            className="!bg-transparent opacity-75 hover:opacity-100 focus:!outline-0 active:opacity-50"
-            onClick={() => {
-              setDisplayedWeek(0);
-            }}
-          >
-            <HomeIcon size={8} />
-          </button>
-          <button
-            className="px-3 py-1 mr-2 rounded !bg-transparent opacity-75 hover:opacity-100 focus:!outline-0"
-            onClick={() => setDisplayedWeek(-1)}
-          >
-            <LeftIcon size={8} />
-          </button>
-          <p className="text-4xl font-bold w-lg text-center">
-            {getWeekRange(weekOffset)}
-          </p>
+          {/* CENTER 40%: Navigation */}
+          <div className="basis-[40%] flex items-center mt-2 justify-center flex-shrink-0">
+            <button
+              className="!bg-transparent opacity-75 hover:opacity-100 focus:!outline-0 active:opacity-50"
+              onClick={() => setDisplayedWeek(0)}
+            >
+              <HomeIcon size={8} />
+            </button>
+            <button
+              className="px-3 py-1 mr-2 rounded !bg-transparent opacity-75 hover:opacity-100 focus:!outline-0"
+              onClick={() => setDisplayedWeek(-1)}
+            >
+              <LeftIcon size={8} />
+            </button>
+            <p className="text-4xl font-bold text-center truncate w-lg">
+              {getWeekRange(weekOffset)}
+            </p>
+            <button
+              className="px-3 py-1 ml-2 rounded !bg-transparent opacity-75 hover:opacity-100 focus:!outline-0"
+              onClick={() => setDisplayedWeek(1)}
+            >
+              <RightIcon size={8} />
+            </button>
+          </div>
 
-          {dailyMotivationalQuote.quote && (
-            <div className="absolute -top-1 left-335 w-[440px]">
-              <div className="relative rounded-lg border border-slate-300/80 bg-slate-100/95 px-4 py-3 text-xs text-slate-800 shadow-sm shadow-slate-200/80 transition-all duration-300 dark:border-slate-600/80 dark:bg-slate-900/95 dark:text-slate-100 dark:shadow-slate-200/20">
-                <p className="font-semibold leading-5">
-                  {dailyMotivationalQuote.quote}
-                </p>
-                {dailyMotivationalQuote.author && (
-                  <p className="mt-1 text-right text-[11px] text-slate-500 dark:text-slate-400">
-                    — {dailyMotivationalQuote.author}
+          {/* RIGHT 30%: Quote + Theme Toggle */}
+          <div className="basis-[30%] mt-1 flex items-start gap-4 min-w-0">
+            {dailyMotivationalQuote.quote && (
+              <div className="flex-1 min-w-[180px]">
+                <div className="relative rounded-lg border border-slate-300/80 bg-slate-100/95 px-4 py-3 text-xs text-slate-800 shadow-sm shadow-slate-200/80 transition-all duration-300 dark:border-slate-600/80 dark:bg-slate-900/95 dark:text-slate-100 dark:shadow-slate-200/20">
+                  <p className="font-semibold leading-5">
+                    {dailyMotivationalQuote.quote}
                   </p>
-                )}
-                <button
-                  onClick={handleRandomQuote}
-                  className="absolute -bottom-1 -left-2 bg-transparent! focus:!outline-0 p-1 rounded opacity-40 hover:opacity-60 transition-opacity duration-1000"
-                >
-                  <RefreshIcon />
-                </button>
+                  {dailyMotivationalQuote.author && (
+                    <p className="mt-1 text-right text-[11px] text-slate-500 dark:text-slate-400">
+                      — {dailyMotivationalQuote.author}
+                    </p>
+                  )}
+                  <button
+                    onClick={handleRandomQuote}
+                    className="absolute -bottom-1 -left-2 bg-transparent! focus:!outline-0 p-1 rounded opacity-40 hover:opacity-60 transition-opacity duration-1000"
+                  >
+                    <RefreshIcon />
+                  </button>
+                </div>
               </div>
-            </div>
-          )}
-
-          <button
-            className="px-3 py-1 ml-2 rounded !bg-transparent opacity-75 hover:opacity-100 focus:!outline-0"
-            onClick={() => setDisplayedWeek(1)}
-          >
-            <RightIcon size={8} />
-          </button>
-          {/* <div>motivation corner</div> */}
-          <div className="absolute top-0 right-3 justify-items-end items-center gap-4">
-            <div className="!rounded-full !border-2 dark:border-slate-400/80 border-sky-600/70 ">
+            )}
+            <div className="!rounded-full !border-2 dark:border-slate-400/80 border-sky-600/70 flex-shrink-0">
               <button
                 onClick={() => setTheme(theme === "light" ? "dark" : "light")}
                 className={`relative w-16 h-8 !rounded-full transition-colors duration-300 focus:!outline-0 ${
@@ -339,10 +330,9 @@ const App = () => {
                 }`}
               >
                 <span
-                  className={`absolute left-[1px] top-[1px] w-7 h-7 !rounded-full bg-neutral-100/40 shadow-md transform transition-transform duration-300
-                   flex justify-center items-center text-center text-xl ${
-                     theme === "dark" ? "translate-x-8" : ""
-                   }`}
+                  className={`absolute left-[1px] top-[1px] w-7 h-7 !rounded-full bg-neutral-100/40 shadow-md transform transition-transform duration-300 flex justify-center items-center text-center text-xl ${
+                    theme === "dark" ? "translate-x-8" : ""
+                  }`}
                 >
                   {theme === "dark" ? "🌙" : "☀️"}
                 </span>
@@ -386,6 +376,7 @@ const App = () => {
             </div> */}
           </div>
         </div>
+
         <DragDropContext onDragEnd={onDragEnd}>
           <WeekView
             events={filterEvents()}
