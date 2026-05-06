@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { DragDropContext } from "@hello-pangea/dnd";
 import WeekView from "./components/WeekView";
 import mockEvents from "./data/MockEvents";
+import motivationalQuotes from "./data/MotivationalQuotes";
 import { getWeekRange, getDaysOfWeek } from "./utils/dateUtils";
 import {
   ActiveFormProvider,
@@ -12,6 +13,7 @@ import LeftIcon from "./assets/LeftIcon";
 import CheckIcon from "./assets/CheckIcon";
 import CancelIcon from "./assets/CancelIcon";
 import HomeIcon from "./assets/HomeIcon";
+import RefreshIcon from "./assets/RefreshIcon";
 
 const App = () => {
   if (
@@ -52,13 +54,13 @@ const App = () => {
   });
 
   const weekEvents = events.filter((event) =>
-    weekDateStrings.includes(event.date)
+    weekDateStrings.includes(event.date),
   );
   const completedCount = weekEvents.filter(
-    (event) => event.status === "completed"
+    (event) => event.status === "completed",
   ).length;
   const cancelledCount = weekEvents.filter(
-    (event) => event.status === "cancelled"
+    (event) => event.status === "cancelled",
   ).length;
   const totalCount = weekEvents.length;
   const progressCount = completedCount;
@@ -121,7 +123,7 @@ const App = () => {
 
   const editEvent = (id, updatedEvent) => {
     setEvents((prev) =>
-      prev.map((e) => (e.id === id ? { ...e, ...updatedEvent } : e))
+      prev.map((e) => (e.id === id ? { ...e, ...updatedEvent } : e)),
     );
   };
 
@@ -144,7 +146,7 @@ const App = () => {
       const eventsForSource = prevEvents.filter((e) => e.date === sourceDate);
       const eventsForDest = prevEvents.filter((e) => e.date === destDate);
       const otherEvents = prevEvents.filter(
-        (e) => e.date !== sourceDate && e.date !== destDate
+        (e) => e.date !== sourceDate && e.date !== destDate,
       );
 
       // Find the event being moved
@@ -207,6 +209,35 @@ const App = () => {
     setEvents((prev) => prev.filter((e) => e.id !== id));
   };
 
+  const [quoteId, setQuoteId] = useState(() => {
+    return parseInt(localStorage.getItem("quoteId")) || null;
+  });
+
+  useEffect(() => {
+    if (quoteId !== null) {
+      localStorage.setItem("quoteId", quoteId);
+    } else {
+      localStorage.removeItem("quoteId");
+    }
+  }, [quoteId]);
+
+  const dailyMotivationalQuote = React.useMemo(() => {
+    if (quoteId !== null) {
+      const quote = motivationalQuotes.find((q) => q.id === quoteId);
+      return quote || { quote: "", author: "" };
+    }
+
+    const today = new Date();
+    const daysSinceEpoch = Math.floor(today.getTime() / (1000 * 60 * 60 * 24));
+    const quoteIndex = daysSinceEpoch % motivationalQuotes.length;
+    return motivationalQuotes[quoteIndex] || { quote: "", author: "" };
+  }, [quoteId]);
+
+  const handleRandomQuote = () => {
+    const randomId = Math.floor(Math.random() * motivationalQuotes.length) + 1;
+    setQuoteId(randomId);
+  };
+
   const setDisplayedWeek = (offset) => {
     if (offset === 0) {
       if (weekOffset === 0) return;
@@ -247,7 +278,7 @@ const App = () => {
                 {completionPercentage}%
               </div>
             </div>
-            
+
             <div className="absolute right-0 text-xs font-semibold text-slate-700 dark:text-slate-200 mt-1">
               {completedCount}/{totalCount} completed
             </div>
@@ -270,13 +301,36 @@ const App = () => {
           <p className="text-4xl font-bold w-lg text-center">
             {getWeekRange(weekOffset)}
           </p>
+
+          {dailyMotivationalQuote.quote && (
+            <div className="absolute -top-1 left-335 w-[440px]">
+              <div className="relative rounded-lg border border-slate-300/80 bg-slate-100/95 px-4 py-3 text-xs text-slate-800 shadow-sm shadow-slate-200/80 transition-all duration-300 dark:border-slate-600/80 dark:bg-slate-900/95 dark:text-slate-100 dark:shadow-slate-200/20">
+                <p className="font-semibold leading-5">
+                  {dailyMotivationalQuote.quote}
+                </p>
+                {dailyMotivationalQuote.author && (
+                  <p className="mt-1 text-right text-[11px] text-slate-500 dark:text-slate-400">
+                    — {dailyMotivationalQuote.author}
+                  </p>
+                )}
+                <button
+                  onClick={handleRandomQuote}
+                  className="absolute -bottom-1 -left-2 bg-transparent! focus:!outline-0 p-1 rounded opacity-40 hover:opacity-60 transition-opacity duration-1000"
+                >
+                  <RefreshIcon />
+                </button>
+              </div>
+            </div>
+          )}
+
           <button
             className="px-3 py-1 ml-2 rounded !bg-transparent opacity-75 hover:opacity-100 focus:!outline-0"
             onClick={() => setDisplayedWeek(1)}
           >
             <RightIcon size={8} />
           </button>
-          <div className="absolute top-0 right-4 grid grid-cols-2 justify-items-end items-center gap-4">
+          {/* <div>motivation corner</div> */}
+          <div className="absolute top-0 right-3 justify-items-end items-center gap-4">
             <div className="!rounded-full !border-2 dark:border-slate-400/80 border-sky-600/70 ">
               <button
                 onClick={() => setTheme(theme === "light" ? "dark" : "light")}
@@ -294,7 +348,7 @@ const App = () => {
                 </span>
               </button>
             </div>
-            <div className=" !rounded-xl p-1 bg-teal-600/10 dark:bg-slate-500/20">
+            {/* <div className=" !rounded-xl p-1 bg-teal-600/10 dark:bg-slate-500/20">
               <button
                 className="!bg-transparent focus:!outline-0 mr-2 items-center"
                 onClick={() => {
@@ -329,7 +383,7 @@ const App = () => {
                   />
                 </div>
               </button>
-            </div>
+            </div> */}
           </div>
         </div>
         <DragDropContext onDragEnd={onDragEnd}>
