@@ -43,6 +43,7 @@ const App = () => {
   const [sortOrderByDate, setSortOrderByDate] = useState({});
   const [showCompleted, setShowCompleted] = useState(true);
   const [showCancelled, setShowCancelled] = useState(true);
+  const [countdown, setCountdown] = useState("");
   const { setActiveFormDate } = useActiveForm();
 
   const weekDays = getDaysOfWeek(weekOffset);
@@ -90,6 +91,33 @@ const App = () => {
     localStorage.setItem("weekOffset", weekOffset);
     setActiveFormDate(null);
   }, [weekOffset]);
+
+  // Countdown to September 6, 2026
+  useEffect(() => {
+    const calculateCountdown = () => {
+      const targetDate = new Date(2026, 8, 6).getTime(); // September 6, 2026 (month is 0-indexed)
+      const now = new Date().getTime();
+      const difference = targetDate - now;
+
+      if (difference <= 0) {
+        setCountdown("🎉 Today's the day! 🎉");
+        return;
+      }
+
+      const days = Math.floor(difference / (1000 * 60 * 60 * 24));
+      //const hours = Math.floor((difference / (1000 * 60 * 60)) % 24);
+      //const minutes = Math.floor((difference / 1000 / 60) % 60);
+      //const seconds = Math.floor((difference / 1000) % 60);
+
+      //setCountdown(`${days}d ${hours}h ${minutes}m ${seconds}s`);
+      setCountdown(days);
+    };
+
+    calculateCountdown();
+    const interval = setInterval(calculateCountdown, 1000);
+
+    return () => clearInterval(interval);
+  }, []);
 
   // Load from localStorage
   useEffect(() => {
@@ -276,7 +304,7 @@ const App = () => {
           </div>
 
           {/* CENTER 40%: Navigation */}
-          <div className="basis-[40%] flex items-center mt-2 justify-center flex-shrink-0">
+          <div className="basis-[40%] flex items-center mt-1 justify-center flex-shrink-0">
             <button
               className="!bg-transparent opacity-75 hover:opacity-100 focus:!outline-0 active:opacity-50"
               onClick={() => setDisplayedWeek(0)}
@@ -289,9 +317,18 @@ const App = () => {
             >
               <LeftIcon size={8} />
             </button>
-            <p className="text-4xl font-bold text-center truncate w-lg">
-              {getWeekRange(weekOffset)}
-            </p>
+            <div>
+              <p className="text-4xl font-bold text-center truncate w-lg">
+                {getWeekRange(weekOffset)}
+              </p>
+              <div className="grid-cols-3 flex items-center gap-2 mt-1">
+                <span className="basis-[25%] flex "></span>
+                <p className="basis-[50%] text-lg text-center items-center font-semibold border-dashed border-t-2">
+                  Last {countdown} days to KPSS
+                </p>
+                <span className="basis-[25%] flex"></span>
+              </div>
+            </div>
             <button
               className="px-3 py-1 ml-2 rounded !bg-transparent opacity-75 hover:opacity-100 focus:!outline-0"
               onClick={() => setDisplayedWeek(1)}
